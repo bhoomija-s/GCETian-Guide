@@ -54,9 +54,28 @@
             </div>
         </section>
 
+        <h3>Leave a Review</h3>
+    <form id="reviewForm">
+        <input type="text" id="reviewerName" placeholder="Your Name" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;">
+        
+        <textarea id="reviewText" placeholder="Write your review here..." required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; height: 80px;"></textarea>
+        
+        <label>Rating: </label>
+        <select id="rating" style="padding: 5px; margin-bottom: 10px;">
+            <option value="5">5 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="2">2 Stars</option>
+            <option value="1">1 Star</option>
+        </select>
+        <br>
+        <button type="submit" class="button button-primary">Submit Review</button>
+    </form>
+</section>
+
         
         <section class="review-section">
-            <h3>What Students Say (3 Reviews)</h3>
+            <h3>What Students Say </h3>
 
             <div class="card review-card">
                 <div class="review-header review-pink">
@@ -104,6 +123,78 @@
     <footer class="footer">
         <i>&copy; 2025 GCET Guide. Made by Bhoomija Sharma.</i>
     </footer>
+
+     <script>
+    // CHANGED: Pointing to the PHP file in your XAMPP folder
+    const API_URL = "http://localhost/web-assignment/backend.php";
+
+    // Function to fetch and display reviews
+    async function loadReviews() {
+        try {
+            const response = await fetch(API_URL);
+            const reviews = await response.json();
+            
+            const container = document.getElementById('dynamic-reviews-container');
+            
+
+            reviews.forEach(review => {
+          
+                const reviewHTML = `
+                    <div class="card review-card" style="margin-top: 15px;">
+                        <div class="review-header review-blue">
+                            <strong>${review.name}</strong>
+                            <span class="review-rating">Rating: ${review.rating}/5</span>
+                        </div>
+                        <div class="review-body">
+                            <p>"${review.review_text}"</p>
+                            <div class="review-meta">
+                                <span>${review.review_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('afterbegin', reviewHTML);
+            });
+        } catch (error) {
+            console.error("Could not load reviews:", error);
+        }
+    }
+
+    
+    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('reviewerName').value;
+        const text = document.getElementById('reviewText').value;
+        const rating = document.getElementById('rating').value;
+
+        // Create the data object
+        const newReview = { name: name, text: text, rating: rating };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newReview)
+            });
+
+            if (response.ok) {
+                alert("Review submitted!");
+                document.getElementById('reviewForm').reset();
+                location.reload(); 
+            } else {
+                alert("Server error");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to PHP server.");
+        }
+    });
+
+    // Load reviews when page opens
+    loadReviews();
+</script>
     
 </body>
+
 </html>
